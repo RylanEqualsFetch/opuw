@@ -15,7 +15,7 @@
 ]]
 
 local REPO = "RylanEqualsFetch/opuw"
-local VERSION = "1.0.0"
+local VERSION = "1.0.1"
 
 local cfg = (type(getgenv) == "function" and getgenv().opuscc_config) or {}
 local BRANCH = cfg.branch or "main"

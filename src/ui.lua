@@ -293,12 +293,16 @@ local rail = new("Frame", {
     BorderSizePixel = 0,
     Parent = window,
 })
+-- Sibling of the rail, not a child: the rail runs a UIListLayout, which lays
+-- out *every* GuiObject child. A full-height divider parented inside it sorts
+-- ahead of the tabs on default LayoutOrder 0 and shoves them all off the window.
 new("Frame", {
-    Position = UDim2.new(1, -1, 0, 0),
-    Size = UDim2.new(0, 1, 1, 0),
+    Position = UDim2.fromOffset(119, 34),
+    Size = UDim2.new(0, 1, 1, -34),
     BackgroundColor3 = theme.border,
     BorderSizePixel = 0,
-    Parent = rail,
+    ZIndex = 2,
+    Parent = window,
 })
 new("UIListLayout", {
     SortOrder = Enum.SortOrder.LayoutOrder,
@@ -861,9 +865,19 @@ function Section:dropdown(text, path, options, callback)
         end
         open = true
         openedAt = os.clock()
+
         local pos = button.AbsolutePosition - window.AbsolutePosition
-        list.Position = UDim2.fromOffset(pos.X, pos.Y + button.AbsoluteSize.Y + 2)
-        list.Size = UDim2.fromOffset(button.AbsoluteSize.X, #options * 22)
+        local height = #options * 22
+        local below = pos.Y + button.AbsoluteSize.Y + 2
+
+        -- Drop upward when the list would run past the bottom of the window.
+        local y = below
+        if below + height > window.AbsoluteSize.Y - 4 then
+            y = math.max(4, pos.Y - height - 2)
+        end
+
+        list.Position = UDim2.fromOffset(pos.X, y)
+        list.Size = UDim2.fromOffset(button.AbsoluteSize.X, height)
         list.Visible = true
         chevron.Text = "▴"
     end)
